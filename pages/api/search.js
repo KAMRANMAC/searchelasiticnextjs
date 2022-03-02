@@ -19,7 +19,7 @@ export default async function searchES(req, res) {
     const result = await client.search({
       index: 'courses',
       body: {
-        query: {
+        "query": {
           
           "bool": {
             "must": [
@@ -94,7 +94,9 @@ export default async function searchES(req, res) {
             "title": {},
             "description": {}
           }
-        }
+        },
+        "from": 0,
+        "size": 100,
       }
     })
     console.log('request : result ', result);
