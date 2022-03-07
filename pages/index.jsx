@@ -1,10 +1,13 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { Modal } from 'react-bootstrap';
 import styles from '../styles/Home.module.css'
 import React, { useState } from 'react'
 export default function Search() {
   const [value, setValue] = useState('');
   const [course, setCourse] = useState([]);
+  const [selectCourse, setSelectCourse] = useState();
+  const [modalShow, setModalShow] = useState(false);
   async function findES() {
     try {
       const response = await fetch(`api/search?value=${value}`);
@@ -17,6 +20,37 @@ export default function Search() {
       console.log('error: ', error)
     }
   }
+  function MyVerticallyCenteredModal(props) {
+
+    return (
+      <Modal
+        {...props}
+        size="sm"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Modal heading
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h4>Centered Modal</h4>
+          <p>
+            link is here
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <button onClick={props.onHide}>Close</button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+  const courseSelectHandler = (_course)=>{
+    console.log("SELECTED COURSE FOR VIEW",_course)
+    setSelectCourse(_course);  
+    setModalShow(!modalShow)
+  }
   return (
     <div className={styles.container}>
       <Head>
@@ -28,24 +62,51 @@ export default function Search() {
         <div className='row'>
           <input type="text" placeholder='Search eg: big data' value={value} onChange={(e) => setValue(e.target.value)} />
           <button onClick={findES}>Search</button>
+          
+          {modalShow &&(
+          <div id="myModal" className="modal">
+            
+            <div class="modal-content">
+            <div class="modal-header">
+            {selectCourse["_source"]["title"]&& (<h2 className="title">{selectCourse["_source"]["title"]}</h2>)}
+            <span class="close" onClick={() => setModalShow(!modalShow)} >&times;</span>
+              </div>
+              {selectCourse["_source"]['description']&& (<p className="modal-content-text"><h3>Description:</h3>{selectCourse["_source"]['description'].toString()}</p>)}
+              {selectCourse["_source"]["price"]&& (<p className="modal-content-text"><h3>Price:</h3>{selectCourse["_source"]["price"]}</p>)}
+              {selectCourse["_source"]["sublink"]&& (<p className="modal-content-text"><h3>Sublink:</h3>{selectCourse["_source"]["sublink"]}</p>)}
+              {/* {selectCourse["_id"]&& (<p><h3>id</h3>{selectCourse["_id"]}</p>)}
+              {selectCourse["_index"]&& (<p><h3>Index</h3>{selectCourse["_index"].toString()}</p>)}
+              {selectCourse["_score"]&& (<p><h3>Score</h3>{selectCourse["_score"].toString()}</p>)}
+              {selectCourse["_source"]["@timestamp"]&& (<p><h3>Source</h3>{selectCourse["_source"]["@timestamp"].toString()}</p>)} */}
+              {selectCourse["_source"]['h3']&& (<p className="modal-content-text"><h3>h1:</h3>{selectCourse["_source"]['h3'].toString()}</p>)}
+              {selectCourse["_source"]['h2']&& (<p className="modal-content-text"><h3>h2:</h3>{selectCourse["_source"]['h2'].toString()}</p>)}
+              {selectCourse["_source"]['h3']&& (<p className="modal-content-text"><h3>h3:</h3>{selectCourse["_source"]['h3'].toString()}</p>)}
+              {selectCourse["_source"]['h4']&& (<p className="modal-content-text"><h3>h4:</h3>{selectCourse["_source"]['h4'].toString()}</p>)}
+              {/* {selectCourse["_source"]["link"]&& (<p><h1>Link</h1>{selectCourse["_source"]["link"]}</p>)} */}
+              {selectCourse.ID}
+            </div>
+          </div>)}
         </div>
+
         <br /><br /><br />
         <table className="table-striped" border="1" height={course.length ? "auto" : ""} width="100%">
           <tr className="header">
-            <th className={styles.textStyle}>ID</th>
-            <th className={styles.textStyle}>title</th>
+            {/* <th className={styles.textStyle}>ID</th> */}
+            <th className={styles.textStyle}>Title</th>
             <th className={styles.textStyle}>Description</th>
-            <th className={styles.textStyle}>link</th>
+            <th className={styles.textStyle}>Link</th>
+            <th className={styles.textStyle}>View</th>
           </tr>
           {course && course.map(x => {
             return <tr key={x._id}>
-              <td className={styles.textStyle}>{x?._id}</td>             
-              <td className={styles.textStyle} 
-              dangerouslySetInnerHTML={{__html: x.highlight.title.join()}} />
+              {/* <td className={styles.textStyle}>{x?._id}</td> */}
+              <td className={styles.textStyle}
+                dangerouslySetInnerHTML={{ __html: x.highlight.title.join() }} />
               <td className={styles.textStyle} dangerouslySetInnerHTML={
-                {__html: x.highlight.description.join()}}/>
+                { __html: x.highlight.description.join() }} />
               <td className={styles.textStyle}>{x?._source.link}</td>
-            </tr>          
+              <td><button id="myBtn" onClick={() => {courseSelectHandler(x)}}>View</button></td>
+            </tr>
           })}
         </table>
       </main>
@@ -65,3 +126,4 @@ export default function Search() {
     </div>
   )
 }
+
